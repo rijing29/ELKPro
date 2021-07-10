@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.elk.elkweb.mapper.ELKMapper" >
+  <resultMap id="BaseResultMap" type="com.elk.elkweb.entity.NodeSoftMap" >
+    <result column="NODE_TYPE" property="nodeType" jdbcType="VARCHAR" />
+    <result column="NODE_ID" property="nodeId" jdbcType="DECIMAL" />
+    <result column="SOFT_NAME" property="softName" jdbcType="VARCHAR" />
+    <result column="WORK_LOAD" property="workLoad" jdbcType="DECIMAL" />
+  </resultMap>
+  <insert id="insert" parameterType="com.elk.elkweb.entity.NodeSoftMap" >
+    insert into T_NODE_SOFT_MAP (NODE_TYPE, NODE_ID, SOFT_NAME, 
+      WORK_LOAD)
+    values (#{nodeType,jdbcType=VARCHAR}, #{nodeId,jdbcType=DECIMAL}, #{softName,jdbcType=VARCHAR}, 
+      #{workLoad,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.elk.elkweb.entity.NodeSoftMap" >
+    insert into T_NODE_SOFT_MAP
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="nodeType != null" >
+        NODE_TYPE,
+      </if>
+      <if test="nodeId != null" >
+        NODE_ID,
+      </if>
+      <if test="softName != null" >
+        SOFT_NAME,
+      </if>
+      <if test="workLoad != null" >
+        WORK_LOAD,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="nodeType != null" >
+        #{nodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null" >
+        #{nodeId,jdbcType=DECIMAL},
+      </if>
+      <if test="softName != null" >
+        #{softName,jdbcType=VARCHAR},
+      </if>
+      <if test="workLoad != null" >
+        #{workLoad,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <select id="queryTableData" resultMap="BaseResultMap">
+      select * from T_NODE_SOFT_MAP
+  </select>
+</mapper>
