@@ -44,7 +44,27 @@
       </if>
     </trim>
   </insert>
+  <!--查询-->
   <select id="queryTableData" resultMap="BaseResultMap">
       select * from T_NODE_SOFT_MAP
+  </select>
+  <!--删除-->
+  <delete id="del" parameterType="java.lang.String">
+    delete from T_NODE_SOFT_MAP where NODE_TYPE=#{nodeType,jdbcType=VARCHAR}
+  </delete>
+  <!--新增-->
+  <insert id="add" parameterType="com.elk.elkweb.entity.NodeSoftMap">
+    insert into T_NODE_SOFT_MAP (NODE_TYPE, NODE_ID, SOFT_NAME,WORK_LOAD)
+    values (#{nodeType,jdbcType=VARCHAR},
+            #{nodeId,jdbcType=DECIMAL},
+            #{softName,jdbcType=VARCHAR},
+            #{workLoad,jdbcType=DECIMAL})
+  </insert>
+  <!--判断某个节点是否已经存在-->
+  <select id="isExit" resultType="java.lang.Integer">
+    select count(*) from T_NODE_SOFT_MAP where exists(select 1 from T_NODE_SOFT_MAP
+          where NODE_TYPE=#{nodeType,jdbcType=VARCHAR}
+                and NODE_ID=#{nodeId,jdbcType=DECIMAL}
+                and SOFT_NAME=#{softName,jdbcType=VARCHAR})
   </select>
 </mapper>
