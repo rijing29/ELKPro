@@ -140,6 +140,8 @@ public class ELKController {
         HashMap<Integer, Double> EfficicencyMap = new HashMap<Integer, Double>();
         Date addOneDay=null;
         addOneDay=transferDate(startTime);
+//        总个数
+        double total=0;
         for(int i=0;i<day;i++){
             //        startTime
             String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
@@ -152,16 +154,24 @@ public class ELKController {
             int sumTotalWorkLoad = efficiService.nodeTypeEfficiency(nodeType,nodeId,startTime,stopTime);
             //        日效率
             double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+            total=total+oneDayEfficiency;
+
             EfficicencyMap.put(i,oneDayEfficiency);
             //        日期加1
             addOneDay  = addOneDay(addOneDay);//+1
         }
+        double aveEffici=calAveEfficiency(startTime,stopTime,total);
+        dataResults dataResults = new dataResults();
+        System.out.println("----------------------------平均效率-----------------------"+aveEffici);
+        double totalArr[]=new double[1];
+        totalArr[0]=aveEffici;
+        dataResults.setAve(totalArr);
         Iterator it=EfficicencyMap.values().iterator();
         while(it.hasNext()) {
             System.out.print("今天的日效率为："+it.next());
         }
 
-        dataResults dataResults = new dataResults();
+
         int i=0;
         for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
             i++;
@@ -242,6 +252,17 @@ public class ELKController {
         }
         return (day);
     }
+    /**
+    * Description:
+    * date: 2021/7/16 14:46
+    * @author: whj
+    * @method:计算平均效率
+    */
+    public static double calAveEfficiency(String time1,String time2,double total){
+        float day = calculateTimeGapDay(time1, time2);
+        return total/day;
+    }
+
     /**
     * Description:
     * date: 2021/7/15 9:57

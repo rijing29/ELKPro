@@ -5,8 +5,18 @@ import java.util.Arrays;
 public class dataResults {
     private int key[];
     private double value[];
+    private double ave[];
 
     public dataResults() {
+    }
+
+    @Override
+    public String toString() {
+        return "dataResults{" +
+                "key=" + Arrays.toString(key) +
+                ", value=" + Arrays.toString(value) +
+                ", ave=" + Arrays.toString(ave) +
+                '}';
     }
 
     public int[] getKey() {
@@ -17,14 +27,6 @@ public class dataResults {
         this.key = key;
     }
 
-    @Override
-    public String toString() {
-        return "dataResults{" +
-                "key=" + Arrays.toString(key) +
-                ", value=" + Arrays.toString(value) +
-                '}';
-    }
-
     public double[] getValue() {
         return value;
     }
@@ -33,8 +35,17 @@ public class dataResults {
         this.value = value;
     }
 
-    public dataResults(int[] key, double[] value) {
+    public double[] getAve() {
+        return ave;
+    }
+
+    public void setAve(double[] ave) {
+        this.ave = ave;
+    }
+
+    public dataResults(int[] key, double[] value, double[] ave) {
         this.key = key;
         this.value = value;
+        this.ave = ave;
     }
 }
