@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.elk.elkweb.mapper.EfficiMapper" >
+  <resultMap id="BaseResultMap" type="com.elk.elkweb.entity.NodeWorkDetail" >
+    <result column="NODE_TYPE" property="nodeType" jdbcType="VARCHAR" />
+    <result column="NODE_ID" property="nodeId" jdbcType="DECIMAL" />
+    <result column="TIME" property="time" jdbcType="TIMESTAMP" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="WORK_LOAD" property="workLoad" jdbcType="DECIMAL" />
+    <association property="T_NODE_SOFT_MAP" resultMap="NodeSoftMap" ></association>
+  </resultMap>
+  <!--&lt;!&ndash;NodeSoftMapMapper.xml的resultmap&ndash;&gt;-->
+  <resultMap id="NodeSoftMap" type="com.elk.elkweb.entity.NodeSoftMap">
+    <id column="NODE_ID" property="nodeId" jdbcType="DECIMAL" />
+    <id column="NODE_TYPE"  property="nodeType" jdbcType="VARCHAR"/>
+    <id column="SOFT_NAME"  property="softName" jdbcType="VARCHAR"/>
+    <result column="WORK_LOAD"  property="workLoad" jdbcType="DECIMAL"/>
+  </resultMap>
+  <insert id="insert" parameterType="com.elk.elkweb.entity.NodeWorkDetail" >
+    insert into T_NODE_WORK_DETAIL (NODE_TYPE, NODE_ID, TIME,
+      USER_NAME, WORK_LOAD)
+    values (#{nodeType,jdbcType=VARCHAR}, #{nodeId,jdbcType=DECIMAL}, #{time,jdbcType=TIMESTAMP},
+      #{userName,jdbcType=VARCHAR}, #{workLoad,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.elk.elkweb.entity.NodeWorkDetail" >
+    insert into T_NODE_WORK_DETAIL
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="nodeType != null" >
+        NODE_TYPE,
+      </if>
+      <if test="nodeId != null" >
+        NODE_ID,
+      </if>
+      <if test="time != null" >
+        TIME,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="workLoad != null" >
+        WORK_LOAD,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="nodeType != null" >
+        #{nodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null" >
+        #{nodeId,jdbcType=DECIMAL},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="workLoad != null" >
+        #{workLoad,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <!--软件名效率-->
+  <select id="softNameEfficiency" resultType="java.lang.Integer">
+    select SUM(WORK_LOAD) from T_NODE_WORK_DETAIL a,
+    (select NODE_TYPE,NODE_ID from T_NODE_SOFT_MAP where SOFT_NAME=#{softName,jdbcType=VARCHAR})b
+    where TIME between to_date(#{startTime},'yyyy-MM-dd hh24:mi:ss')
+    and to_date(#{stopTime},'yyyy-MM-dd hh24:mi:ss')
+    and a.NODE_TYPE=b.NODE_TYPE and a.NODE_ID=b.NODE_ID
+  </select>
+  <!--各节点工作量之和-->
+  <select id="sumWorkLoad" resultType="java.lang.Integer">
+    select SUM(WORK_LOAD) from T_NODE_SOFT_MAP
+    where 1=1
+    <if test="nodeType != '' and nodeType!=null" >
+      and NODE_TYPE=#{nodeType,jdbcType=VARCHAR}
+    </if>
+    <if test="nodeId != '' and nodeId!=null" >
+      and NODE_ID=#{nodeId,jdbcType=DECIMAL}
+    </if>
+    <if test="softName != '' and softName!=null" >
+      and SOFT_NAME=#{softName,jdbcType=VARCHAR}
+    </if>
+  </select>
+  <!--nodeType效率-->
+  <select id="nodeTypeDfficiency" resultType="java.lang.Integer">
+    select SUM(WORK_LOAD) from T_NODE_WORK_DETAIL where NODE_TYPE=#{nodeType,jdbcType=VARCHAR} and NODE_ID=#{nodeId,jdbcType=DECIMAL} and TIME between
+    to_date(#{startTime},'yyyy-MM-dd hh24:mi:ss')
+    and to_date(#{stopTime},' yyyy-MM-dd hh24:mi:ss')
+  </select>
+  <!--nodeType各节点工作之和-->
+  <select id="sumNodeTypeWorkLoad" resultType="java.lang.Integer">
+    select SUM(WORK_LOAD) from T_NODE_SOFT_MAP
+    where 1=1
+    <if test="nodeType != '' and nodeType!=null" >
+      and NODE_TYPE=#{nodeType,jdbcType=VARCHAR}
+    </if>
+    <if test="nodeId != '' and nodeId!=null" >
+      and NODE_ID=#{nodeId,jdbcType=DECIMAL}
+    </if>
+  </select>
+</mapper>

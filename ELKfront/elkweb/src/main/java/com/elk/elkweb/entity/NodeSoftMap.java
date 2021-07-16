@@ -9,6 +9,22 @@ public class NodeSoftMap {
 
     private Long workLoad;
 
+    public NodeSoftMap() {
+    }
+
+    public NodeSoftMap(String nodeType, Integer nodeId, String softName) {
+        this.nodeType = nodeType;
+        this.nodeId = nodeId;
+        this.softName = softName;
+    }
+
+    public NodeSoftMap(String nodeType, Integer nodeId, String softName, Long workLoad) {
+        this.nodeType = nodeType;
+        this.nodeId = nodeId;
+        this.softName = softName;
+        this.workLoad = workLoad;
+    }
+
     public String getNodeType() {
         return nodeType;
     }

@@ -4,6 +4,7 @@ import com.elk.elkweb.entity.NodeSoftMap;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 @Service
 public interface ELKService {
@@ -15,4 +16,5 @@ public interface ELKService {
     boolean add(String nodeType,int nodeId,String softName,Long workLoad);
 //    记录是否存在
     int isExits(String nodeType,int nodeId,String softName);
+
 }

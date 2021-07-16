@@ -18,7 +18,7 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 生成(实体)模型的包名和位置-->
-        <javaModelGenerator targetPackage="com.elk.elkweb.entity.NodeSoftMap" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.elk.elkweb.entity" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
@@ -32,6 +32,8 @@
         <!--</javaClientGenerator>-->
         <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
         <table tableName="T_NODE_SOFT_MAP" domainObjectName="NodeSoftMap" enableCountByExample="false" enableUpdateByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
+        <table tableName="T_NODE_WORK_DETAIL" domainObjectName="NodeWorkDetail" enableCountByExample="false" enableUpdateByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>
     </context>
 </generatorConfiguration>

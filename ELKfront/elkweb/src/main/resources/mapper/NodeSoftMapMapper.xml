@@ -1,49 +1,85 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.elk.elkweb.mapper.ELKMapper" >
-  <resultMap id="BaseResultMap" type="com.elk.elkweb.entity.NodeSoftMap" >
-    <result column="NODE_TYPE" property="nodeType" jdbcType="VARCHAR" />
-    <result column="NODE_ID" property="nodeId" jdbcType="DECIMAL" />
-    <result column="SOFT_NAME" property="softName" jdbcType="VARCHAR" />
-    <result column="WORK_LOAD" property="workLoad" jdbcType="DECIMAL" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elk.elkweb.mapper.ELKMapper">
+  <resultMap id="BaseResultMap" type="com.elk.elkweb.entity.NodeSoftMap">
+    <id column="NODE_ID" jdbcType="DECIMAL" property="nodeId" />
+    <id column="NODE_TYPE" jdbcType="VARCHAR" property="nodeType" />
+    <id column="SOFT_NAME" jdbcType="VARCHAR" property="softName" />
+    <result column="WORK_LOAD" jdbcType="DECIMAL" property="workLoad" />
   </resultMap>
-  <insert id="insert" parameterType="com.elk.elkweb.entity.NodeSoftMap" >
-    insert into T_NODE_SOFT_MAP (NODE_TYPE, NODE_ID, SOFT_NAME, 
+  <sql id="Base_Column_List">
+    NODE_ID, NODE_TYPE, SOFT_NAME, WORK_LOAD
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="com.elk.elkweb.entity.NodeSoftMapKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from T_NODE_SOFT_MAP
+    where NODE_ID = #{nodeId,jdbcType=DECIMAL}
+      and NODE_TYPE = #{nodeType,jdbcType=VARCHAR}
+      and SOFT_NAME = #{softName,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.elk.elkweb.entity.NodeSoftMapKey">
+    delete from T_NODE_SOFT_MAP
+    where NODE_ID = #{nodeId,jdbcType=DECIMAL}
+      and NODE_TYPE = #{nodeType,jdbcType=VARCHAR}
+      and SOFT_NAME = #{softName,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.elk.elkweb.entity.NodeSoftMap">
+    insert into T_NODE_SOFT_MAP (NODE_ID, NODE_TYPE, SOFT_NAME, 
       WORK_LOAD)
-    values (#{nodeType,jdbcType=VARCHAR}, #{nodeId,jdbcType=DECIMAL}, #{softName,jdbcType=VARCHAR}, 
+    values (#{nodeId,jdbcType=DECIMAL}, #{nodeType,jdbcType=VARCHAR}, #{softName,jdbcType=VARCHAR}, 
       #{workLoad,jdbcType=DECIMAL})
   </insert>
-  <insert id="insertSelective" parameterType="com.elk.elkweb.entity.NodeSoftMap" >
+  <insert id="insertSelective" parameterType="com.elk.elkweb.entity.NodeSoftMap">
     insert into T_NODE_SOFT_MAP
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="nodeType != null" >
-        NODE_TYPE,
-      </if>
-      <if test="nodeId != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="nodeId != null">
         NODE_ID,
       </if>
-      <if test="softName != null" >
+      <if test="nodeType != null">
+        NODE_TYPE,
+      </if>
+      <if test="softName != null">
         SOFT_NAME,
       </if>
-      <if test="workLoad != null" >
+      <if test="workLoad != null">
         WORK_LOAD,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="nodeType != null" >
-        #{nodeType,jdbcType=VARCHAR},
-      </if>
-      <if test="nodeId != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="nodeId != null">
         #{nodeId,jdbcType=DECIMAL},
       </if>
-      <if test="softName != null" >
+      <if test="nodeType != null">
+        #{nodeType,jdbcType=VARCHAR},
+      </if>
+      <if test="softName != null">
         #{softName,jdbcType=VARCHAR},
       </if>
-      <if test="workLoad != null" >
+      <if test="workLoad != null">
         #{workLoad,jdbcType=DECIMAL},
       </if>
     </trim>
   </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.elk.elkweb.entity.NodeSoftMap">
+    update T_NODE_SOFT_MAP
+    <set>
+      <if test="workLoad != null">
+        WORK_LOAD = #{workLoad,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where NODE_ID = #{nodeId,jdbcType=DECIMAL}
+      and NODE_TYPE = #{nodeType,jdbcType=VARCHAR}
+      and SOFT_NAME = #{softName,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.elk.elkweb.entity.NodeSoftMap">
+    update T_NODE_SOFT_MAP
+    set WORK_LOAD = #{workLoad,jdbcType=DECIMAL}
+    where NODE_ID = #{nodeId,jdbcType=DECIMAL}
+      and NODE_TYPE = #{nodeType,jdbcType=VARCHAR}
+      and SOFT_NAME = #{softName,jdbcType=VARCHAR}
+  </update>
+
   <!--查询-->
   <select id="queryTableData" resultMap="BaseResultMap">
       select * from T_NODE_SOFT_MAP
@@ -67,4 +103,6 @@
                 and NODE_ID=#{nodeId,jdbcType=DECIMAL}
                 and SOFT_NAME=#{softName,jdbcType=VARCHAR})
   </select>
+
+
 </mapper>

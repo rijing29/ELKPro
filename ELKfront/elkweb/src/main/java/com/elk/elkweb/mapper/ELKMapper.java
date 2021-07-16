@@ -1,10 +1,12 @@
 package com.elk.elkweb.mapper;
 
 import com.elk.elkweb.entity.NodeSoftMap;
+import com.elk.elkweb.entity.searchItem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 @Repository
 @Mapper
@@ -22,5 +24,5 @@ public interface ELKMapper {
     int isExit(@Param("nodeType") String nodeTpe,
                @Param("nodeId")int nodeId,
                @Param("softName")String softName);
-}
 
+}
