@@ -61,7 +61,6 @@ public class ELKController {
                 System.out.println("可以插入的值:"+i);
                 elkService.add(nodeType,i, softName,workLoad);
             }
-
         }
     }
 
@@ -76,11 +75,13 @@ public class ELKController {
     public dataResults softNameEfficiency(@RequestParam("softName") String softName,
                                    @RequestParam("startTime") String startTime,
                                    @RequestParam("stopTime") String stopTime) throws ParseException {
-        //        所选总天数（分母）
+        //        所隔天数（分母）
         float day = calculateTimeGapDay(startTime, stopTime);
         HashMap<Integer, Double> EfficicencyMap = new HashMap<Integer, Double>();
         Date addOneDay=null;
         addOneDay=transferDate(startTime);
+        //        总个数
+        double total=0;
         for(int i=0;i<day;i++){
     //        startTime
             String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
@@ -101,7 +102,9 @@ public class ELKController {
         while(it.hasNext()) {
             System.out.print("今天的日效率为："+it.next());
         }
+        double aveEffici=calAveEfficiency(startTime,stopTime,total);
         dataResults dataResults = new dataResults();
+        System.out.println("----------------------------平均效率-----------------------"+aveEffici);
         int i=0;
         for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
             i++;
@@ -151,7 +154,7 @@ public class ELKController {
             //        各节点工作量之和(分母)
             int sumNodeWorkLoad = efficiService.sumNodeTypeWorkLoad(nodeSoftMap);
             //        工作总量（分子）
-            int sumTotalWorkLoad = efficiService.nodeTypeEfficiency(nodeType,nodeId,startTime,stopTime);
+            int sumTotalWorkLoad = efficiService.nodeTypeEfficiency(nodeType,nodeId,dayStart,dayStop);
             //        日效率
             double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
             total=total+oneDayEfficiency;
@@ -170,8 +173,6 @@ public class ELKController {
         while(it.hasNext()) {
             System.out.print("今天的日效率为："+it.next());
         }
-
-
         int i=0;
         for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
             i++;
