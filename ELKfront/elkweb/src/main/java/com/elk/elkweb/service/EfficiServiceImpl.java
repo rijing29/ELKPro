@@ -23,7 +23,7 @@ public class EfficiServiceImpl implements EfficiService {
     }
 //    nodeType效率
     public int nodeTypeEfficiency(String nodeType, String nodeId, String startTime, String stopTime) {
-        int res = efficiMapper.nodeTypeDfficiency(nodeType, nodeId, startTime, stopTime);
+        int res = efficiMapper.nodeTypeEfficiency(nodeType, nodeId, startTime, stopTime);
         return res;
     }
     //    nodeType各节点工作量之和

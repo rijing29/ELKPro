@@ -7,9 +7,9 @@
                     <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                 </el-select>月
                 <el-table :data="tableData" stripe style="width: 100%">
-                    <el-table-column prop="date" label="日期" width="180"></el-table-column>
-                    <el-table-column prop="name" label="姓名" width="180"></el-table-column>
-                    <el-table-column prop="address" label="地址"></el-table-column>
+                    <el-table-column prop="softName" label="软件名" width="180"></el-table-column>
+                    <el-table-column prop="time" label="时间" width="180"></el-table-column>
+                    <el-table-column prop="efficiency" label="效率"></el-table-column>
                 </el-table>
             </el-main>
         </el-container>
@@ -21,23 +21,7 @@
     export default {
         data() {
             return {
-                tableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }],
+                tableData: [],
                 options: [{value: '选项1', label: '1'},
                     {value: '选项2', label: '2'},
                     {value: '选项3', label: '3'},

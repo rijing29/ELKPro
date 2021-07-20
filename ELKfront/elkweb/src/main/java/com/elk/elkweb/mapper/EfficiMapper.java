@@ -17,7 +17,7 @@ public interface EfficiMapper {
     // 软件名各节点工作量之和
     int sumWorkLoad(NodeSoftMap nodeSoftMap);
 //    根据nodeType和nodeId
-    int nodeTypeDfficiency(@Param("nodeType")String nodeType,
+    int nodeTypeEfficiency(@Param("nodeType")String nodeType,
                            @Param("nodeId")String nodeId,
                            @Param("startTime")String startTime,
                            @Param("stopTime")String stopTime);

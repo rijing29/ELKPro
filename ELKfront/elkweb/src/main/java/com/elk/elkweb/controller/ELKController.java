@@ -24,7 +24,7 @@ public class ELKController {
     private ELKService elkService;
     @Autowired
     private EfficiService efficiService;
-//    查询所有table数据
+    //    查询所有table数据
     @RequestMapping(value = "/queryTable",produces = "application/json;charset=utf-8" )
     @ResponseBody
     public List<NodeSoftMap> show(){
@@ -35,22 +35,22 @@ public class ELKController {
         }
         return nodeSoftMaps;
     }
-//    删除
+    //    删除
     @ResponseBody
     @RequestMapping(value = "/del",produces = "application/json;charset=utf-8" )
     public void del(@RequestParam("nodeType") String nodeType) {
         System.out.println("从前端传回来的："+nodeType);
         elkService.del(nodeType);
     }
-//    新增
+    //    新增
     @RequestMapping(value = "/add",produces = "application/json;charset=utf-8" )
     @ResponseBody
     public void add(
-                    @RequestParam("nodeType") String nodeType,
-                    @RequestParam("softName") String softName,
-                    @RequestParam("startValue") int startValue,
-                    @RequestParam("stopValue") int stopValue,
-                    @RequestParam("workLoad") Long workLoad){
+            @RequestParam("nodeType") String nodeType,
+            @RequestParam("softName") String softName,
+            @RequestParam("startValue") int startValue,
+            @RequestParam("stopValue") int stopValue,
+            @RequestParam("workLoad") Long workLoad){
         int count=stopValue-startValue+1;
         for(int i=startValue;i<=stopValue;i++){
             int res = elkService.isExits(nodeType,i,softName);
@@ -65,85 +65,53 @@ public class ELKController {
     }
 
     /**
-    * Description:
-    * date: 2021/7/15 14:40
-    * @author: whj
-    * @method:软件名日效率
-    */
+     * Description:
+     * date: 2021/7/15 14:40
+     * @author: whj
+     * @method:软件名日效率
+     */
     @RequestMapping(value = "/calSoftName",produces = "application/json;charset=utf-8" )
     @ResponseBody
     public dataResults softNameEfficiency(@RequestParam("softName") String softName,
-                                   @RequestParam("startTime") String startTime,
-                                   @RequestParam("stopTime") String stopTime) throws ParseException {
-        //        所隔天数（分母）
+                                          @RequestParam("startTime") String startTime,
+                                          @RequestParam("stopTime") String stopTime) throws ParseException {
         float day = calculateTimeGapDay(startTime, stopTime);
-        HashMap<Integer, Double> EfficicencyMap = new HashMap<Integer, Double>();
-        Date addOneDay=null;
-        addOneDay=transferDate(startTime);
-        //        总个数
-        double total=0;
-        for(int i=0;i<day;i++){
-    //        startTime
-            String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
-            String dayStart=transferString(addOneDay);//2020/7/14 7:45:26
-            String dayStop=dayStopTime;//2020/7/14 23:59:59
-            NodeSoftMap nodeSoftMap = new NodeSoftMap("",null,softName);
-    //        各节点工作量之和(分母)
-            int sumNodeWorkLoad = efficiService.sumWorkLoad(nodeSoftMap);
-    //        工作总量（分子）
-            int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, dayStart, dayStop);
-    //        日效率
-            double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
-            EfficicencyMap.put(i,oneDayEfficiency);
-            //        日期加1
-            addOneDay  = addOneDay(addOneDay);//+1
-        }
-        Iterator it=EfficicencyMap.values().iterator();
-        while(it.hasNext()) {
-            System.out.print("今天的日效率为："+it.next());
-        }
-        double aveEffici=calAveEfficiency(startTime,stopTime,total);
+        LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
+        double aveEffici = calNodeTypeAveEffici(startTime, stopTime, day, softName, EfficiencyMap);
         dataResults dataResults = new dataResults();
         System.out.println("----------------------------平均效率-----------------------"+aveEffici);
-        int i=0;
-        for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
-            i++;
-        }
-        int key[] = new int[i];
-        double value[] = new double[i];
-        int j=0;
-        for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
-            int num = entry.getKey();
-            double count = entry.getValue();
-            System.out.println(num+"---"+count);
-            key[j]=num+1;
-            value[j]=count;
-            j++;
-        }
-        dataResults.setKey(key);
-        dataResults.setValue(value);
-        System.out.println(dataResults);
-        return dataResults;
+        return res(dataResults, aveEffici, EfficiencyMap);
     }
 
     /**
-    * Description:
-    * date: 2021/7/15 16:01
-    * @author: whj
-    * @method:nodeType日效率
-    */
+     * Description:
+     * date: 2021/7/15 16:01
+     * @author: whj
+     * @method:nodeType日效率
+     */
     @RequestMapping(value = "/calNodeType",produces = "application/json;charset=utf-8" )
     @ResponseBody
     public dataResults nodeTypeEfficiency(@Param("nodeType")String nodeType,
-                                   @Param("nodeId")String nodeId,
-                                   @Param("startTime")String startTime,
-                                   @Param("stopTime")String stopTime) throws ParseException {
-        //        所选总天数（分母）
+                                          @Param("nodeId")String nodeId,
+                                          @Param("startTime")String startTime,
+                                          @Param("stopTime")String stopTime) throws ParseException {
         float day = calculateTimeGapDay(startTime, stopTime);
-        HashMap<Integer, Double> EfficicencyMap = new HashMap<Integer, Double>();
+        LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
+        double aveEffici = calSoftNameAveEffici(startTime, stopTime, day, nodeType, nodeId, EfficiencyMap);
+        dataResults dataResults = new dataResults();
+        System.out.println("----------------------------平均效率-----------------------"+aveEffici);
+        return res(dataResults, aveEffici, EfficiencyMap);
+    }
+
+    /**
+     * Description:
+     * date: 2021/7/20 10:09
+     * @author: whj
+     * @method:softName计算平均效率总和
+     */
+    public double calSoftNameAveEffici(String startTime,String stopTime,float day,String nodeType,String nodeId,LinkedHashMap<String, Double> EfficiencyMap) throws ParseException {
         Date addOneDay=null;
         addOneDay=transferDate(startTime);
-//        总个数
         double total=0;
         for(int i=0;i<day;i++){
             //        startTime
@@ -159,29 +127,67 @@ public class ELKController {
             double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
             total=total+oneDayEfficiency;
 
-            EfficicencyMap.put(i,oneDayEfficiency);
+            EfficiencyMap.put(dayStart,oneDayEfficiency);
             //        日期加1
             addOneDay  = addOneDay(addOneDay);//+1
         }
         double aveEffici=calAveEfficiency(startTime,stopTime,total);
-        dataResults dataResults = new dataResults();
-        System.out.println("----------------------------平均效率-----------------------"+aveEffici);
+        return aveEffici;
+    }
+    /**
+     * Description:
+     * date: 2021/7/20 10:38
+     * @author: whj
+     * @method:nodeType计算平均效率
+     */
+    public double calNodeTypeAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
+        //        加一天的变量
+        Date addOneDay=null;
+        addOneDay=transferDate(startTime);
+        //        总个数
+        double total=0;
+        for(int i=0;i<day;i++){
+            //        startTime
+            String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
+            String dayStart=transferString(addOneDay);//2020/7/14 7:45:26
+            String dayStop=dayStopTime;//2020/7/14 23:59:59
+            NodeSoftMap nodeSoftMap = new NodeSoftMap("",null,softName);
+            //        各节点工作量之和(分母)
+            int sumNodeWorkLoad = efficiService.sumWorkLoad(nodeSoftMap);
+            //        工作总量（分子）
+            int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, dayStart, dayStop);
+            //        日效率
+            double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+            EfficicencyMap.put(dayStart,oneDayEfficiency);
+            //        日期加1
+            addOneDay  = addOneDay(addOneDay);//+1
+        }
+        double aveEffici=calAveEfficiency(startTime,stopTime,total);
+        return aveEffici;
+    }
+    /**
+     * Description:
+     * date: 2021/7/20 10:17
+     * @author: whj
+     * @method:把key value ave三个数组放入dataRestults
+     */
+    public dataResults res(dataResults dataResults,double aveEffici,LinkedHashMap<String, Double> EfficiencyMap){
         double totalArr[]=new double[1];
         totalArr[0]=aveEffici;
         dataResults.setAve(totalArr);
-        Iterator it=EfficicencyMap.values().iterator();
+        Iterator it=EfficiencyMap.values().iterator();
         while(it.hasNext()) {
             System.out.print("今天的日效率为："+it.next());
         }
         int i=0;
-        for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
+        for (Map.Entry<String, Double> entry : EfficiencyMap.entrySet()) {
             i++;
         }
-        int key[] = new int[i];
+        String key[] = new String[i];
         double value[] = new double[i];
         int j=0;
-        for (Map.Entry<Integer, Double> entry : EfficicencyMap.entrySet()) {
-            int num = entry.getKey();
+        for (Map.Entry<String, Double> entry : EfficiencyMap.entrySet()) {
+            String num = entry.getKey();
             double count = entry.getValue();
             System.out.println(num+"---"+count);
             key[j]=num+1;
@@ -193,14 +199,23 @@ public class ELKController {
         System.out.println(dataResults);
         return dataResults;
     }
-
+    /**
+     * Description:
+     * date: 2021/7/16 14:46
+     * @author: whj
+     * @method:计算平均效率
+     */
+    public static double calAveEfficiency(String time1,String time2,double total){
+        float day = calculateTimeGapDay(time1, time2);
+        return total/day;
+    }
 
     /**
-    * Description:
-    * date: 2021/7/15 15:06
-    * @author: whj
-    * @method:日期+1天
-    */
+     * Description:
+     * date: 2021/7/15 15:06
+     * @author: whj
+     * @method:日期+1天
+     */
     public Date addOneDay(Date date){
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(date);
@@ -209,11 +224,11 @@ public class ELKController {
         return date;
     }
     /**
-    * Description:
-    * date: 2021/7/15 14:50
-    * @author: whj
-    * @method:stopTime转dayStopTime
-    */
+     * Description:
+     * date: 2021/7/15 14:50
+     * @author: whj
+     * @method:stopTime转dayStopTime
+     */
     public String dayStopTime(String s){
         StringBuilder builder = new StringBuilder(s);
         builder.replace(10,s.length(),"23:59:59");
@@ -221,22 +236,22 @@ public class ELKController {
         return dayStopTime;
     }
     /**
-    * Description:
-    * date: 2021/7/15 14:30
-    * @author: whj
-    * @method:日效率计算
-    */
+     * Description:
+     * date: 2021/7/15 14:30
+     * @author: whj
+     * @method:日效率计算
+     */
     public static double calOneDayEfficiency(int sumTotalWorkLoad,int sumNodeWorkLoad){
         double fenMu=24*2*sumNodeWorkLoad;
         double res=sumTotalWorkLoad/fenMu;
         return res;
     }
     /**
-    * Description:
-    * date: 2021/7/15 9:46
-    * @author: whj
-    * @method:比较两个时间相差天数
-    */
+     * Description:
+     * date: 2021/7/15 9:46
+     * @author: whj
+     * @method:比较两个时间相差天数
+     */
     public static float calculateTimeGapDay(String time1, String time2) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
                 "yyyy/MM/dd HH:mm:ss");
@@ -253,34 +268,25 @@ public class ELKController {
         }
         return (day);
     }
-    /**
-    * Description:
-    * date: 2021/7/16 14:46
-    * @author: whj
-    * @method:计算平均效率
-    */
-    public static double calAveEfficiency(String time1,String time2,double total){
-        float day = calculateTimeGapDay(time1, time2);
-        return total/day;
-    }
+
 
     /**
-    * Description:
-    * date: 2021/7/15 9:57
-    * @author: whj
-    * @method:string转date
-    */
+     * Description:
+     * date: 2021/7/15 9:57
+     * @author: whj
+     * @method:string转date
+     */
     public static Date transferDate(String Time) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = sdf.parse(Time);
         return date;
     }
     /**
-    * Description:
-    * date: 2021/7/15 15:20
-    * @author: whj
-    * @method:date转string
-    */
+     * Description:
+     * date: 2021/7/15 15:20
+     * @author: whj
+     * @method:date转string
+     */
     public static String transferString(Date date){
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String res = formatter.format(date);

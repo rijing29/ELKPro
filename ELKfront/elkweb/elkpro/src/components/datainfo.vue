@@ -198,7 +198,7 @@
             this.fullscreenLoading = true;
             setTimeout(() => {
                 this.fullscreenLoading = false;
-            }, 5000);
+            }, 4000);
             var url="/calSoftName"
             var params={
                 'softName':this.softName,
@@ -219,7 +219,7 @@
             this.fullscreenLoading = true;
             setTimeout(() => {
                 this.fullscreenLoading = false;
-            }, 10000);
+            }, 4000);
             console.log(this.startTime)
             console.log(this.stopTime)
             console.log(this.nodeType)

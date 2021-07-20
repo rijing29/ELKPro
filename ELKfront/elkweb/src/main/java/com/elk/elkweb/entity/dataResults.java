@@ -3,7 +3,7 @@ package com.elk.elkweb.entity;
 import java.util.Arrays;
 
 public class dataResults {
-    private int key[];
+    private String key[];
     private double value[];
     private double ave[];
 
@@ -19,11 +19,11 @@ public class dataResults {
                 '}';
     }
 
-    public int[] getKey() {
+    public String[] getKey() {
         return key;
     }
 
-    public void setKey(int[] key) {
+    public void setKey(String[] key) {
         this.key = key;
     }
 
@@ -43,7 +43,7 @@ public class dataResults {
         this.ave = ave;
     }
 
-    public dataResults(int[] key, double[] value, double[] ave) {
+    public dataResults(String[] key, double[] value, double[] ave) {
         this.key = key;
         this.value = value;
         this.ave = ave;
