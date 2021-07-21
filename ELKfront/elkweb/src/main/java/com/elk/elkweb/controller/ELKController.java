@@ -1,5 +1,7 @@
 package com.elk.elkweb.controller;
-
+import com.elk.elkweb.entity.TableExport;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import com.elk.elkweb.entity.NodeSoftMap;
 import com.elk.elkweb.entity.dataResults;
 import com.elk.elkweb.service.ELKService;
@@ -68,7 +70,7 @@ public class ELKController {
      * Description:
      * date: 2021/7/15 14:40
      * @author: whj
-     * @method:软件名日效率
+     * @method:softName日效率
      */
     @RequestMapping(value = "/calSoftName",produces = "application/json;charset=utf-8" )
     @ResponseBody
@@ -105,14 +107,53 @@ public class ELKController {
 
     /**
      * Description:
+     * date: 2021/7/21 11:05
+     * @author: whj
+     * @method:ShowTable里的方法softName
+     */
+    @RequestMapping(value = "/tableSoftName",produces = "application/json;charset=utf-8" )
+    @ResponseBody
+    public JSONArray nodeType(@RequestParam("softName") String softName,
+                              @RequestParam("startTime") String startTime,
+                              @RequestParam("stopTime") String stopTime) throws ParseException {
+        float day = calculateTimeGapDay(startTime, stopTime);
+        LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
+        JSONArray jsonArray = jsonArraySoftNameAveEffici(startTime, stopTime, day, softName, EfficiencyMap);
+        return jsonArray;
+    }
+    /**
+     * Description:
+     * date: 2021/7/21 11:16
+     * @author: whj
+     * @method:ShowTable里的方法nodeType
+     */
+    @RequestMapping(value = "/tableNodeType",produces = "application/json;charset=utf-8" )
+    @ResponseBody
+    public JSONArray nodeType(@Param("nodeType")String nodeType,
+                              @Param("nodeId")String nodeId,
+                              @Param("startTime")String startTime,
+                              @Param("stopTime")String stopTime) throws ParseException {
+        float day = calculateTimeGapDay(startTime, stopTime);
+        LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
+        JSONArray jsonArray = jsonArrayNodeTypeAveEffici(startTime, stopTime, day, nodeType, nodeId, EfficiencyMap);
+        return jsonArray;
+    }
+
+
+
+    /**
+     * Description:
      * date: 2021/7/20 10:09
      * @author: whj
-     * @method:softName计算平均效率总和
+     * @method:nodeType计算平均效率总和
      */
     public double calSoftNameAveEffici(String startTime,String stopTime,float day,String nodeType,String nodeId,LinkedHashMap<String, Double> EfficiencyMap) throws ParseException {
         Date addOneDay=null;
         addOneDay=transferDate(startTime);
         double total=0;
+//        定义一个json数组对象
+        JSONArray array1 = null;
+        JSONArray array2 = null;
         for(int i=0;i<day;i++){
             //        startTime
             String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
@@ -126,19 +167,35 @@ public class ELKController {
             //        日效率
             double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
             total=total+oneDayEfficiency;
+            String yAxis = splitStartTime(dayStart);
+            EfficiencyMap.put(yAxis,oneDayEfficiency);
 
-            EfficiencyMap.put(dayStart,oneDayEfficiency);
             //        日期加1
             addOneDay  = addOneDay(addOneDay);//+1
         }
+        JSONArray jsonArray = joinJSON(EfficiencyMap);
+        System.out.println("json字符串："+jsonArray);
         double aveEffici=calAveEfficiency(startTime,stopTime,total);
         return aveEffici;
     }
     /**
+    * Description:
+    * date: 2021/7/20 15:00
+    * @author: whj
+    * @method:切割字符串切掉时分秒
+    */
+    public String splitStartTime(String startTime){
+        int i = startTime.indexOf(" ");
+        System.out.println(i);
+        startTime=startTime.substring(0,i);
+        return startTime;
+    }
+
+    /**
      * Description:
      * date: 2021/7/20 10:38
      * @author: whj
-     * @method:nodeType计算平均效率
+     * @method:softName计算平均效率
      */
     public double calNodeTypeAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
         //        加一天的变量
@@ -158,13 +215,109 @@ public class ELKController {
             int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, dayStart, dayStop);
             //        日效率
             double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
-            EfficicencyMap.put(dayStart,oneDayEfficiency);
+            total=total+oneDayEfficiency;
+            String yAxis = splitStartTime(dayStart);
+            EfficicencyMap.put(yAxis,oneDayEfficiency);
             //        日期加1
             addOneDay  = addOneDay(addOneDay);//+1
         }
+        JSONArray jsonArray = joinJSON(EfficicencyMap);
+        System.out.println("json字符串："+jsonArray);
         double aveEffici=calAveEfficiency(startTime,stopTime,total);
         return aveEffici;
     }
+
+    /**
+    * Description:
+    * date: 2021/7/21 10:34
+    * @author: whj
+    * @method:softName返回JSONArray
+    */
+    public JSONArray jsonArraySoftNameAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
+        //        加一天的变量
+        Date addOneDay=null;
+        addOneDay=transferDate(startTime);
+        //        总个数
+        double total=0;
+        for(int i=0;i<day;i++){
+            //        startTime
+            String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
+            String dayStart=transferString(addOneDay);//2020/7/14 7:45:26
+            String dayStop=dayStopTime;//2020/7/14 23:59:59
+            NodeSoftMap nodeSoftMap = new NodeSoftMap("",null,softName);
+            //        各节点工作量之和(分母)
+            int sumNodeWorkLoad = efficiService.sumWorkLoad(nodeSoftMap);
+            //        工作总量（分子）
+            int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, dayStart, dayStop);
+            //        日效率
+            double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+            total=total+oneDayEfficiency;
+            String yAxis = splitStartTime(dayStart);
+            EfficicencyMap.put(yAxis,oneDayEfficiency);
+            //        日期加1
+            addOneDay  = addOneDay(addOneDay);//+1
+        }
+        return joinJSON(EfficicencyMap);
+    }
+    /**
+    * Description:
+    * date: 2021/7/21 11:18
+    * @author: whj
+    * @method:nodeType返回jsonArray
+    */
+    public JSONArray jsonArrayNodeTypeAveEffici(String startTime,String stopTime,float day,String nodeType,String nodeId,LinkedHashMap<String, Double> EfficiencyMap) throws ParseException {
+        Date addOneDay=null;
+        addOneDay=transferDate(startTime);
+        double total=0;
+//        定义一个json数组对象
+        JSONArray array1 = null;
+        JSONArray array2 = null;
+        for(int i=0;i<day;i++){
+            //        startTime
+            String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
+            String dayStart=transferString(addOneDay);//2020/7/14 7:45:26
+            String dayStop=dayStopTime;//2020/7/14 23:59:59
+            NodeSoftMap nodeSoftMap = new NodeSoftMap(nodeType,null,nodeId);
+            //        各节点工作量之和(分母)
+            int sumNodeWorkLoad = efficiService.sumNodeTypeWorkLoad(nodeSoftMap);
+            //        工作总量（分子）
+            int sumTotalWorkLoad = efficiService.nodeTypeEfficiency(nodeType,nodeId,dayStart,dayStop);
+            //        日效率
+            double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+            total=total+oneDayEfficiency;
+            String yAxis = splitStartTime(dayStart);
+            EfficiencyMap.put(yAxis,oneDayEfficiency);
+
+            //        日期加1
+            addOneDay  = addOneDay(addOneDay);//+1
+        }
+        return joinJSON(EfficiencyMap);
+    }
+
+
+
+    /**
+    * Description:
+    * date: 2021/7/21 10:17
+    * @author: whj
+    * @method:向jsonArray中添加jsonObject
+    */
+    public JSONArray joinJSON(LinkedHashMap<String, Double> EfficicencyMap){
+        JSONArray array = new JSONArray();
+        Iterator iter = EfficicencyMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            Object key = entry.getKey();
+            Object val = entry.getValue();
+            JSONObject object = new JSONObject();
+            object.put("time",key);
+            object.put("efficiency",val);
+            array.add(object);
+        }
+        return array;
+    }
+
+
     /**
      * Description:
      * date: 2021/7/20 10:17
@@ -190,7 +343,7 @@ public class ELKController {
             String num = entry.getKey();
             double count = entry.getValue();
             System.out.println(num+"---"+count);
-            key[j]=num+1;
+            key[j]=num;
             value[j]=count;
             j++;
         }
