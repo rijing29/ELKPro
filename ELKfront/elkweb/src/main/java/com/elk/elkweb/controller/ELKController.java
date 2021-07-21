@@ -139,8 +139,6 @@ public class ELKController {
         return jsonArray;
     }
 
-
-
     /**
      * Description:
      * date: 2021/7/20 10:09
@@ -179,23 +177,10 @@ public class ELKController {
         return aveEffici;
     }
     /**
-    * Description:
-    * date: 2021/7/20 15:00
-    * @author: whj
-    * @method:切割字符串切掉时分秒
-    */
-    public String splitStartTime(String startTime){
-        int i = startTime.indexOf(" ");
-        System.out.println(i);
-        startTime=startTime.substring(0,i);
-        return startTime;
-    }
-
-    /**
      * Description:
      * date: 2021/7/20 10:38
      * @author: whj
-     * @method:softName计算平均效率
+     * @method:softName计算平均效率总和
      */
     public double calNodeTypeAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
         //        加一天的变量
@@ -225,6 +210,18 @@ public class ELKController {
         System.out.println("json字符串："+jsonArray);
         double aveEffici=calAveEfficiency(startTime,stopTime,total);
         return aveEffici;
+    }
+    /**
+    * Description:
+    * date: 2021/7/20 15:00
+    * @author: whj
+    * @method:切割字符串切掉时分秒
+    */
+    public String splitStartTime(String startTime){
+        int i = startTime.indexOf(" ");
+        System.out.println(i);
+        startTime=startTime.substring(0,i);
+        return startTime;
     }
 
     /**
@@ -287,14 +284,11 @@ public class ELKController {
             total=total+oneDayEfficiency;
             String yAxis = splitStartTime(dayStart);
             EfficiencyMap.put(yAxis,oneDayEfficiency);
-
             //        日期加1
             addOneDay  = addOneDay(addOneDay);//+1
         }
         return joinJSON(EfficiencyMap);
     }
-
-
 
     /**
     * Description:
@@ -352,6 +346,7 @@ public class ELKController {
         System.out.println(dataResults);
         return dataResults;
     }
+
     /**
      * Description:
      * date: 2021/7/16 14:46

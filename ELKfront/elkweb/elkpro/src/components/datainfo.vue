@@ -53,7 +53,7 @@
           <el-button  v-if="isSoftNameSelect" icon="el-icon-search" type="primary" @click="getSoftNameEfficiency" v-loading.fullscreen.lock="fullscreenLoading">软件效率</el-button>
           <el-button  v-if="isNodeTypeSelect" icon="el-icon-search" type="primary" @click="getNodeTypeEfficiency" v-loading.fullscreen.lock="fullscreenLoading">节点效率</el-button>
         </el-col>
-      </el-row>
+        </el-row>
       <el-main>
         <!--数据展示图-->
         <v-chart class="echarts" :option="option" />
