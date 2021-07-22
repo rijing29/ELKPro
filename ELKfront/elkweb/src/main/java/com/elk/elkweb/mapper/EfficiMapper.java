@@ -23,5 +23,6 @@ public interface EfficiMapper {
                            @Param("stopTime")String stopTime);
 //    nodeType各节点工作之和
     int sumNodeTypeWorkLoad(NodeSoftMap nodeSoftMap);
-
+//    取出所有的softName
+    List getSoftName();
 }

@@ -31,4 +31,10 @@ public class EfficiServiceImpl implements EfficiService {
         int res = efficiMapper.sumNodeTypeWorkLoad(nodeSoftMap);
         return res;
     }
+
+//    取出所有的softName
+    public List getSoftName() {
+        List softName = efficiMapper.getSoftName();
+        return softName;
+    }
 }

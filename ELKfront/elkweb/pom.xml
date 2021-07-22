@@ -71,6 +71,12 @@
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.metaparadigm/json-rpc -->
+		<dependency>
+			<groupId>com.metaparadigm</groupId>
+			<artifactId>json-rpc</artifactId>
+			<version>1.0</version>
+		</dependency>
 
 	</dependencies>
 

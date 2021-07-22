@@ -172,8 +172,6 @@
       }
     },
     created(){
-        console.log(this.option.series[0].data)
-        console.log(this.option.yAxis.data)
     },
     methods:{
         SelectChange(val){

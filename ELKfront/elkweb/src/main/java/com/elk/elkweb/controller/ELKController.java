@@ -79,7 +79,7 @@ public class ELKController {
                                           @RequestParam("stopTime") String stopTime) throws ParseException {
         float day = calculateTimeGapDay(startTime, stopTime);
         LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
-        double aveEffici = calNodeTypeAveEffici(startTime, stopTime, day, softName, EfficiencyMap);
+        double aveEffici = calSoftNameAveEffici(startTime, stopTime, day, softName, EfficiencyMap);
         dataResults dataResults = new dataResults();
         System.out.println("----------------------------平均效率-----------------------"+aveEffici);
         return res(dataResults, aveEffici, EfficiencyMap);
@@ -99,7 +99,7 @@ public class ELKController {
                                           @Param("stopTime")String stopTime) throws ParseException {
         float day = calculateTimeGapDay(startTime, stopTime);
         LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
-        double aveEffici = calSoftNameAveEffici(startTime, stopTime, day, nodeType, nodeId, EfficiencyMap);
+        double aveEffici = calNodeTypeAveEffici(startTime, stopTime, day, nodeType, nodeId, EfficiencyMap);
         dataResults dataResults = new dataResults();
         System.out.println("----------------------------平均效率-----------------------"+aveEffici);
         return res(dataResults, aveEffici, EfficiencyMap);
@@ -145,7 +145,7 @@ public class ELKController {
      * @author: whj
      * @method:nodeType计算平均效率总和
      */
-    public double calSoftNameAveEffici(String startTime,String stopTime,float day,String nodeType,String nodeId,LinkedHashMap<String, Double> EfficiencyMap) throws ParseException {
+    public double calNodeTypeAveEffici(String startTime,String stopTime,float day,String nodeType,String nodeId,LinkedHashMap<String, Double> EfficiencyMap) throws ParseException {
         Date addOneDay=null;
         addOneDay=transferDate(startTime);
         double total=0;
@@ -182,7 +182,7 @@ public class ELKController {
      * @author: whj
      * @method:softName计算平均效率总和
      */
-    public double calNodeTypeAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
+    public double calSoftNameAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
         //        加一天的变量
         Date addOneDay=null;
         addOneDay=transferDate(startTime);

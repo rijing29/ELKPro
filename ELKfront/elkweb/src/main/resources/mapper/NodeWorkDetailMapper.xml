@@ -61,7 +61,7 @@
   </insert>
   <!--软件名效率-->
   <select id="softNameEfficiency" resultType="java.lang.Integer">
-    select SUM(WORK_LOAD) from T_NODE_WORK_DETAIL a,
+    select nvl(SUM(WORK_LOAD),0) as WORK_LOAD from T_NODE_WORK_DETAIL a,
     (select NODE_TYPE,NODE_ID from T_NODE_SOFT_MAP where SOFT_NAME=#{softName,jdbcType=VARCHAR})b
     where TIME between to_date(#{startTime},'yyyy-MM-dd hh24:mi:ss')
     and to_date(#{stopTime},'yyyy-MM-dd hh24:mi:ss')
@@ -97,5 +97,9 @@
     <if test="nodeId != '' and nodeId!=null" >
       and NODE_ID=#{nodeId,jdbcType=DECIMAL}
     </if>
+  </select>
+  <!-- 取出所有的softName-->
+  <select id="getSoftName" resultType="java.lang.String">
+    select SOFT_NAME from T_NODE_SOFT_MAP group by SOFT_NAME
   </select>
 </mapper>

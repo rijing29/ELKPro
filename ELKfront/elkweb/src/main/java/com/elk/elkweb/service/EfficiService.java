@@ -16,4 +16,6 @@ public interface EfficiService {
     int nodeTypeEfficiency(String nodeType,String nodeId,String startTime,String stopTime);
 //    nodeType各节点工作量之和
     int sumNodeTypeWorkLoad(NodeSoftMap nodeSoftMap);
+//取出所有的softName
+    List getSoftName();
 }
