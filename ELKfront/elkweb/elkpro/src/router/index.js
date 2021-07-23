@@ -3,7 +3,8 @@ import VueRouter from 'vue-router'
 import index from '../components/index.vue'
 import test from '../components/test.vue'
 import datainfo from '../components/datainfo.vue'
-import showTable from '../components/showTable.vue'
+import showSoftNameTable from '../components/showSoftNameTable.vue'
+import showNodeTypeTable from '../components/showNodeTypeTable.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -20,9 +21,13 @@ const routes = [
     name:'datainfo',
     component:datainfo
   },{
-    path:'/showTable',
-    name:'showTable',
-    component:showTable
+    path:'/showSoftNameTable',
+    name:'showSoftNameTable',
+    component:showSoftNameTable
+  },{
+    path:'/showNodeTypeTable',
+    name:'showNodeTypeTable',
+    component:showNodeTypeTable
   }
 ]
 

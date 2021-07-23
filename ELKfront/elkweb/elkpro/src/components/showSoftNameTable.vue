@@ -12,6 +12,7 @@
                     <el-option v-for="item in month_options" :key="item.monthvalue" :label="item.label" :value="item.label"></el-option>
                 </el-select>月
                 <el-button icon="el-icon-search" type="primary" @click="searchSoftNameEfficiency" v-loading.fullscreen.lock="fullscreenLoading">查询</el-button>
+                <el-button icon="el-icon-search" type="primary" @click="export2Excel">导出excel</el-button>
                 <el-table :data="tableData" stripe style="width: 100%">
                     <el-table-column prop="softName" label="软件名" width="360"></el-table-column>
                     <el-table-column prop="time" label="时间" width="360"></el-table-column>
@@ -87,7 +88,31 @@
                   this.tableData=res.data
                   console.log(this.tableData)
               })
-          }
+          },
+            //导出excel的信息集合
+            export2Excel() {
+                require.ensure([], () => {
+                    const { export_json_to_excel } = require("../tools/Export2Excel.js");
+                    // 设置自己的excel表头
+                    const tHeader = [
+                        "软件名",
+                        "时间",
+                        "月平均效率",
+                    ]; // 上面设置Excel的表格第一行的标题
+                    const filterVal = [
+                        "softName",
+                        "time",
+                        "efficiency",
+                    ]; // client_id client_name client_phone 为tableData的属性
+                    const list = this.tableData; //把data里的tableData存到list
+                    const data = this.formatJson(filterVal, list);
+                    export_json_to_excel(tHeader, data, "软件名效率excel");
+                });
+            },
+            formatJson(filterVal, jsonData) {
+                return jsonData.map(v => filterVal.map(j => v[j]));
+            }
+
         },
     }
 </script>
