@@ -15,11 +15,12 @@
                 <el-select v-model="monthvalue" placeholder="请选择">
                     <el-option v-for="item in month_options" :key="item.monthvalue" :label="item.label" :value="item.label"></el-option>
                 </el-select>月
-                <el-button icon="el-icon-search" type="primary" @click="" v-loading.fullscreen.lock="fullscreenLoading">查询</el-button>
+                <el-button icon="el-icon-search" type="primary" @click="getNodeTypeEffi" v-loading.fullscreen.lock="fullscreenLoading">查询</el-button>
                 <el-button icon="el-icon-search" type="primary" @click="export2Excel">导出excel</el-button>
                 <el-table :data="tableData" stripe style="width: 100%">
-                    <el-table-column prop="softName" label="软件名" width="360"></el-table-column>
-                    <el-table-column prop="time" label="时间" width="360"></el-table-column>
+                    <el-table-column prop="nodeType" label="节点名" width="220"></el-table-column>
+                    <el-table-column prop="nodeId" label="节点编号" width="220"></el-table-column>
+                    <el-table-column prop="time" label="时间" width="220"></el-table-column>
                     <el-table-column prop="efficiency" label="效率"></el-table-column>
                 </el-table>
             </el-main>
@@ -31,6 +32,9 @@
 <script>
     export default {
         watch: {
+            softName_value:function(newV, oldV) {
+                this.softName=newV
+            },
             yearvalue: function(newV, oldV) {
                 this.year=newV
             },
@@ -43,6 +47,7 @@
                 fullscreenLoading: false,
                 year:'',
                 month:'',
+                softName:'',
                 tableData: [],
                 softName_options:[{softName_value: '选项1', label: 'Geoeast'},
                     {softName_value: '选项2', label: 'GEOEASTDL'},
@@ -74,6 +79,23 @@
             // this.getSoftName();
         },
         methods:{
+            getNodeTypeEffi(){
+                this.fullscreenLoading = true;
+                setTimeout(() => {
+                    this.fullscreenLoading = false;
+                }, 500);
+                var url="/searchNodeTypeEfficiency"
+                var params={
+                    'softName':this.softName,
+                    'year': this.year,
+                    'month': this.month,
+                }
+                this.$http.get(url,{params}).then(res=>{
+                    console.log(res)
+                    this.tableData=res.data
+                    console.log(this.tableData)
+                })
+            },
 
             //导出excel的信息集合
             export2Excel() {
@@ -81,18 +103,20 @@
                     const { export_json_to_excel } = require("../tools/Export2Excel.js");
                     // 设置自己的excel表头
                     const tHeader = [
-                        "软件名",
+                        "节点名",
+                        "节点编号",
                         "时间",
-                        "月平均效率",
+                        "效率",
                     ]; // 上面设置Excel的表格第一行的标题
                     const filterVal = [
-                        "softName",
+                        "nodeType",
+                        "nodeId",
                         "time",
                         "efficiency",
                     ]; // client_id client_name client_phone 为tableData的属性
                     const list = this.tableData; //把data里的tableData存到list
                     const data = this.formatJson(filterVal, list);
-                    export_json_to_excel(tHeader, data, "软件名效率excel");
+                    export_json_to_excel(tHeader, data, "节点效率excel");
                 });
             },
             formatJson(filterVal, jsonData) {

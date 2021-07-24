@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 @Repository
 @Mapper
 public interface EfficiMapper {
@@ -25,4 +27,6 @@ public interface EfficiMapper {
     int sumNodeTypeWorkLoad(NodeSoftMap nodeSoftMap);
 //    取出所有的softName
     List getSoftName();
+//    取出softName的所有nodeType和nodeId
+    List<Map< String, Object >> getNodeInfo(String softName);
 }

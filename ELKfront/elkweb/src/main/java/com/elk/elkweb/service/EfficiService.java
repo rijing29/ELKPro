@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public interface EfficiService {
     //    效率
@@ -18,4 +20,6 @@ public interface EfficiService {
     int sumNodeTypeWorkLoad(NodeSoftMap nodeSoftMap);
 //取出所有的softName
     List getSoftName();
+//    根据softName取出nodeType和nodeId
+    List<Map< String, Object >> getNodeInfo(String softName);
 }

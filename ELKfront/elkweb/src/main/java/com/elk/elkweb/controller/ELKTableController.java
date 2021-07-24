@@ -10,12 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import static com.elk.elkweb.controller.ELKController.calOneDayEfficiency;
 
 @Controller
@@ -35,6 +33,15 @@ public class ELKTableController {
         List softname = efficiService.getSoftName();
         String softName = JSON.toJSONString(softname);
         System.out.println("遍历出来的所有softName:"+softName);
+//        测试
+        String a[] ={"str1","str2"};
+        System.out.println(a.length);
+        for(int i=0;i<a.length;i++) {
+            a[i] = " ";
+        }
+        for(int i=0;i<a.length;i++)
+            System.out.println(a[i]);
+
         return softname;
     }
     /**
@@ -56,14 +63,87 @@ public class ELKTableController {
     * Description:
     * date: 2021/7/23 10:32
     * @author: whj
-    * @method:
+    * @method:按年月查出所有节点效率
     */
+    @ResponseBody
+    @RequestMapping(value = "/searchNodeTypeEfficiency",produces = "application/json;charset=utf-8")
+    public JSONArray searchNodeTypeEfficiency(@Param("softName") String softName,
+                                         @Param("year") String year,
+                                         @Param("month") String month){
+        List<Map<String, Object>> nodeInfo = efficiService.getNodeInfo(softName);
+        String[] aveNodeType = calNodeTypeEfficiency(softName, year, month);
+        JSONArray nodeTypeJSON = combineNodeTypeJSON(nodeInfo, year, month, aveNodeType);
+        System.out.println(nodeTypeJSON);
+        return nodeTypeJSON;
+    }
+    /**
+    * Description:
+    * date: 2021/7/23 15:30
+    * @author: whj
+    * @method:开始遍历nodeType和nodeId进行效率计算
+    */
+    public String[] calNodeTypeEfficiency(String softName,String year,String month){
+        List<Map<String, Object>> nodeInfo = efficiService.getNodeInfo(softName);
+        for(int i=0;i<nodeInfo.size();i++) {
+            System.out.println(nodeInfo.get(i).get("NODE_TYPE"));
+            System.out.println(nodeInfo.get(i).get("NODE_ID"));
+        }
+//        year和month的时间转换
+        String[] time = new String[2];
+        String[] Time = formatMonth(year, month, time);
+        String startTime=Time[0];
+        String stopTime=Time[1];
+        int len=nodeInfo.size();
+        String[] aveNodeType=new String[len];
+        for(int i=0;i<nodeInfo.size();i++){
+            String nodeType= (String) nodeInfo.get(i).get("NODE_TYPE");
+            String nodeId= nodeInfo.get(i).get("NODE_ID").toString();
+            String aveEfficiency = calNodeTypeAveEfficiency(nodeInfo, nodeType, nodeId, startTime, stopTime);
+            aveNodeType[i]=aveEfficiency;
+        }
+        for(int i=0;i<aveNodeType.length;i++) {
+            System.out.println(aveNodeType[i]);
+        }
+        return aveNodeType;
+    }
 
+    /**
+    * Description:
+    * date: 2021/7/23 15:58
+    * @author: whj
+    * @method:nodeType计算效率
+    */
+    public String calNodeTypeAveEfficiency(List<Map<String, Object>> nodeInfo,String nodeType,String nodeId,String startTime,String stopTime){
+        int sumTotalWorkLoad = efficiService.nodeTypeEfficiency(nodeType, nodeId, startTime, stopTime);
+        NodeSoftMap nodeSoftMap = new NodeSoftMap(nodeType,null,nodeId);
+        int sumNodeWorkLoad = efficiService.sumNodeTypeWorkLoad(nodeSoftMap);
+        double aveEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+        double aveEffici=calAveEfficiency(aveEfficiency);
+        return aveTransferPercen(aveEffici);
+    }
+    /**
+    * Description:
+    * date: 2021/7/23 16:25
+    * @author: whj
+    * @method:nodeType合并三个json成为一个jsonObject
+    */
+    public JSONArray combineNodeTypeJSON(List<Map<String, Object>> nodeInfo,String year,String month,String[] aveNodeType){
+        JSONArray jsonArray = new JSONArray();
+        for(int i=0;i<nodeInfo.size();i++){
+            JSONObject jo=new JSONObject();
+            jo.put("nodeType",nodeInfo.get(i).get("NODE_TYPE").toString());
+            jo.put("nodeId",nodeInfo.get(i).get("NODE_ID").toString());
+            jo.put("time",year+"年"+month+"月");
+            jo.put("efficiency",aveNodeType[i]);
+            jsonArray.add(jo);
+        }
+        return jsonArray;
+    }
     /**
     * Description:
     * date: 2021/7/22 15:32
     * @author: whj
-    * @method:合并三个json成为一个jsonObject
+    * @method:softName合并三个json成为一个jsonObject
     */
     public JSONArray combineJSON(String[] ave,List softName,String year,String month){
         JSONArray json = new JSONArray();
@@ -90,10 +170,8 @@ public class ELKTableController {
         String startTime=Time[0];
         String stopTime=Time[1];
         String[] softName={"Pardiam","GEOEASTDL","Geoeast","WCC"};
-        LinkedHashMap<String, Double> EfficiencyMap = new LinkedHashMap<String, Double>();
-        float day=30;
         for(int i=0;i<softName.length;i++){
-            Double aveEffici = calSoftNameAveEffici(startTime, stopTime, day, softName[i], EfficiencyMap);
+            Double aveEffici = calSoftNameAveEffici(startTime, stopTime, softName[i]);
             System.out.println("每天的效率为："+aveEffici);
             ave[i]=aveTransferPercen(aveEffici);
         }
@@ -106,12 +184,11 @@ public class ELKTableController {
     * @method:把效率换成百分比
     */
     public String aveTransferPercen(Double aveEffici){
-        NumberFormat nFromat = NumberFormat.getPercentInstance();
-        String avePercent = nFromat.format(aveEffici);
-        return avePercent;
+            System.out.println(aveEffici);
+            NumberFormat nFromat = NumberFormat.getPercentInstance();
+            String avePercent = nFromat.format(aveEffici);
+            return avePercent;
     }
-
-
     /**
     * Description:
     * date: 2021/7/21 20:31
@@ -144,32 +221,17 @@ public class ELKTableController {
      * @author: whj
      * @method:softName计算平均效率总和
      */
-    public double calSoftNameAveEffici(String startTime,String stopTime,float day,String softName,LinkedHashMap<String, Double> EfficicencyMap) throws ParseException {
-        //        加一天的变量
-        Date addOneDay=null;
-        addOneDay=transferDate(startTime);
-        //        总个数
-        double total=0;
-        for(int i=0;i<day;i++){
-            //        startTime
-            String dayStopTime = dayStopTime(transferString(addOneDay));//2020/7/14 23:59:59
-            String dayStart=transferString(addOneDay);//2020/7/14 7:45:26
-            String dayStop=dayStopTime;//2020/7/14 23:59:59
-            NodeSoftMap nodeSoftMap = new NodeSoftMap("",null,softName);
-            //        各节点工作量之和(分母)
-            int sumNodeWorkLoad = efficiService.sumWorkLoad(nodeSoftMap);
-            //        工作总量（分子）
-            System.out.println("即将计算了的softName"+softName);
-            int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, dayStart, dayStop);
-            //        日效率
-            double oneDayEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
-            total=total+oneDayEfficiency;
-            String yAxis = splitStartTime(dayStart);
-            EfficicencyMap.put(yAxis,oneDayEfficiency);
-            //        日期加1
-            addOneDay  = addOneDay(addOneDay);//+1
-        }
-        double aveEffici=calAveEfficiency(startTime,stopTime,total);
+    public double calSoftNameAveEffici(String startTime,String stopTime,String softName) throws ParseException {
+        //        startTime
+        NodeSoftMap nodeSoftMap = new NodeSoftMap("",null,softName);
+        //        各节点工作量之和(分母)
+        int sumNodeWorkLoad = efficiService.sumWorkLoad(nodeSoftMap);
+        //        工作总量（分子）
+        System.out.println("即将计算了的softName"+softName);
+        int sumTotalWorkLoad = efficiService.softNameEfficiency(softName, startTime, stopTime);
+        double aveEfficiency = calOneDayEfficiency(sumTotalWorkLoad, sumNodeWorkLoad);
+        //        月平均效率
+        double aveEffici=calAveEfficiency(aveEfficiency);
         return aveEffici;
     }
     /**
@@ -237,7 +299,7 @@ public class ELKTableController {
      * @author: whj
      * @method:计算平均效率
      */
-    public static double calAveEfficiency(String time1,String time2,double total){
+    public static double calAveEfficiency(double total){
         float day = 30;
         return total/day;
     }

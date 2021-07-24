@@ -78,7 +78,7 @@
               this.fullscreenLoading = true;
               setTimeout(() => {
                   this.fullscreenLoading = false;
-              }, 8000);
+              }, 500);
               var url="/searchSoftNameEfficiency"
               var params={
                   'year': this.year,

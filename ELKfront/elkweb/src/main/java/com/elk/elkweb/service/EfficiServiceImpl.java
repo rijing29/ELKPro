@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 @Service
 public class EfficiServiceImpl implements EfficiService {
     @Autowired
@@ -36,5 +38,11 @@ public class EfficiServiceImpl implements EfficiService {
     public List getSoftName() {
         List softName = efficiMapper.getSoftName();
         return softName;
+    }
+
+//    根据softName取出nodeType和nodeId
+    public List<Map< String, Object >> getNodeInfo(String softName) {
+        List nodeInfo = efficiMapper.getNodeInfo(softName);
+        return nodeInfo;
     }
 }

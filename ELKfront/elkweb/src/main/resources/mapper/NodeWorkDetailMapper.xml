@@ -102,4 +102,8 @@
   <select id="getSoftName" resultType="java.lang.String">
     select SOFT_NAME from T_NODE_SOFT_MAP group by SOFT_NAME
   </select>
+  <!--取出softName的所有nodeType和nodeId-->
+  <select id="getNodeInfo" resultType="map">
+    select NODE_TYPE,NODE_ID from T_NODE_SOFT_MAP where SOFT_NAME=#{softName,jdbcType=VARCHAR}
+  </select>
 </mapper>
